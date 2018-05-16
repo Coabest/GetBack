@@ -11,17 +11,22 @@ int Game::inicializar()
 	//Velocidad de los FPS
 	ventana.setFramerateLimit(60);
 
-	//Sprite del background 1
-	if (!miTextura2.loadFromFile("bg1.PNG"))
-		return 1;
-	miSprite2.setTexture(miTextura2);
-
 	//sprite del personaje 1
 	if (!miTextura.loadFromFile("p1_N.PNG"))
 		return 1;
 	miSprite.setTexture(miTextura);
 	miSprite.setPosition(400, 500);
 	miSprite.setOrigin(miSprite.getLocalBounds().width/2.f, miSprite.getLocalBounds().height/2.f);
+
+	//Sprite del background 1
+	if (!miTextura2.loadFromFile("bg1.PNG"))
+		return 1;
+	miSprite2.setTexture(miTextura2);
+
+	//Sprite de la entrada a la cueva
+	if (!miTextura3.loadFromFile("caveEntrance.PNG"))
+		return 1;
+	miSprite3.setTexture(miTextura3);
 }
 
 void Game::eventos()
@@ -81,6 +86,7 @@ void Game::eventos()
 //Logica del juego...
 void Game::update()
 {
+	//Logica de movimiento
 	if (pressedUP) {
 		if (pressedRIGHT) {
 			miSprite.setRotation(-315);
@@ -127,79 +133,32 @@ void Game::update()
 		miSprite.move(-3, 0);
 	}
 
-
-
-
-	/*
-	if (pressedUP) {
-		if (pressedRIGHT) {
-			miTextura.loadFromFile("p1_NE.PNG");
-			miSprite.setTexture(miTextura);
-			std::cout << "W y D presionado" << std::endl;
-			miSprite.move(3, -3);
-			//pressedRIGHT = false;
-		}
-		else if (pressedLEFT) {
-			miTextura.loadFromFile("p1_NW.PNG");
-			miSprite.setTexture(miTextura);
-			std::cout << "W y A presionado" << std::endl;
-			miSprite.move(-3, -3);
-			//pressedLEFT = false;
-		}
-		else {
-			miTextura.loadFromFile("p1_N.PNG");
-			miSprite.setTexture(miTextura);
-			std::cout << "W presionado" << std::endl;
-			miSprite.move(0, -3);
-			//pressedUP = false;
-		}
+	//Que hacer cuando se presione y suelte el click izq del mouse
+	if (leftClick) {
+		std::cout << mouseX << " - " << mouseY << std::endl;
+		leftClick = false;
 	}
 
-	if (pressedDOWN) {
-		if (pressedRIGHT) {
-			miTextura.loadFromFile("p1_SE.PNG");
-			miSprite.setTexture(miTextura);
-			std::cout << "S y D presionado" << std::endl;
-			miSprite.move(3, 3);
-			//pressedRIGHT = false;
-		}
-		else if (pressedLEFT) {
-			miTextura.loadFromFile("p1_SW.PNG");
-			miSprite.setTexture(miTextura);
-			std::cout << "S y A presionado" << std::endl;
-			miSprite.move(-3, 3);
-			//pressedLEFT = false;
-		}
-		else {
-			miTextura.loadFromFile("p1_S.PNG");
-			miSprite.setTexture(miTextura);
-			std::cout << "S presionado" << std::endl;
-			miSprite.move(0, 3);
-			//pressedDOWN = false;
-		}
+	//si entra a la cueva...
+	if (miSprite.getPosition().x > 500 &&
+		miSprite.getPosition().x < 568 &&
+		miSprite.getPosition().y < 40)
+	{
+		cleared();
+		std::shared_ptr<MainMenu> miJuego(new MainMenu);
+		miJuego->run();
 	}
-		if ( pressedRIGHT && !pressedUP && !pressedDOWN) {
-			miTextura.loadFromFile("p1_E.PNG");
-			miSprite.setTexture(miTextura);
-			std::cout << "D presionado" << std::endl;
-			miSprite.move(3,0);
-		}
 
-		if ( pressedLEFT && !pressedUP && !pressedDOWN) {
-			miTextura.loadFromFile("p1_W.PNG");
-			miSprite.setTexture(miTextura);
-			std::cout << "A presionado" << std::endl;
-			miSprite.move(-3,0);
-		}
-		*/
-		//Que hacer cuando se presione y suelte el click izq del mouse
-		if (leftClick) {
-			std::cout << "Click izquierdo presionado :)" << std::endl;
-			std::cout << mouseX << " - " << mouseY << std::endl;
-			leftClick = false;
-		}
-		
-		//std::cout << mouseX << " - " << mouseY << std::endl;
+	//Si se va alrededor de la montana...
+	if (miSprite.getPosition().y > 100 &&
+		miSprite.getPosition().y < 200 &&
+		miSprite.getPosition().x < 40)
+	{
+		cleared();
+		std::shared_ptr<MainMenu> miJuego(new MainMenu);
+		miJuego->run();
+	}
+
 }
 
 //Renderizado...
@@ -210,6 +169,8 @@ void Game::render()
 	ventana.draw(miSprite2);
 
 	ventana.draw(miSprite);
+
+	ventana.draw(miSprite3);
 
 	ventana.display();
 }

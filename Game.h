@@ -1,6 +1,8 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 
+#include "MainMenu.h"
+
 using namespace sf;
 
 class Game
@@ -14,6 +16,9 @@ private:
 
 	sf::Texture miTextura2;
 	sf::Sprite miSprite2;
+
+	sf::Texture miTextura3;
+	sf::Sprite miSprite3;
 
 	//controla el gameloop
 	bool isPlay{ true };
