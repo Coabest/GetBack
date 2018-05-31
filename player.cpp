@@ -3,7 +3,7 @@
 player::player()
 {
   rect.setSize(sf::Vector2f(40, 50));
-  rect.setPosition(8,300);
+  rect.setPosition(64,640);
 
   textureTest.loadFromFile("player-walking-2.png");
   texture.loadFromFile("player-walking-2.png");
@@ -16,6 +16,7 @@ player::player()
 void player::update()
 {
   sprite.setPosition(rect.getPosition());
+  sprite.setScale(rect.getScale());
 
   if ( sf::Keyboard::isKeyPressed(sf::Keyboard::W) || 
        sf::Keyboard::isKeyPressed(sf::Keyboard::Up) )

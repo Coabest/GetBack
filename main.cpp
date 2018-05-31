@@ -46,21 +46,21 @@ int main()
 /////////////////////////////////////////////////////////////////////
 
     sf::Texture tx;
-    tx.loadFromFile("rollingRock.png");
+    tx.loadFromFile("map1.png");
     sf::Sprite sp;
     sp.setTexture(tx);
-    sp.setPosition(-200.f, -200.f);
-    sp.setScale(80.f, 80.f);
+    sp.setScale(2.f, 2.f);
 
     mainMenu MMenu;
 
     // Player creation
     player *p1 = new player;
-    p1->sprite.setPosition(window.getSize().x / 2, window.getSize().y / 2);
+    p1->rect.setPosition(64,640);
+    p1->rect.setScale(0.5, 0.5);
 
     // Main view
-    //sf::View view;
-    //view.setViewport(sf::FloatRect(0,0,1,1));
+    sf::View view;
+    view.setViewport(sf::FloatRect(0,0,1,1));
 
     // Rock 1
     fallingRock *rock1 = new fallingRock;
@@ -101,7 +101,7 @@ int main()
               break;
           }
         }
-/*  TO CONTROL THE CAMERA ZOOM
+        //TO CONTROL THE CAMERA ZOOM
         if ( MMenu.showMainMenu )
           view.reset(sf::FloatRect(0, 0, 800, 600));
         else
@@ -109,7 +109,7 @@ int main()
                                   p1->rect.getPosition().y - 150,
                                   400,
                                   300));
-*/
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
         {
           delete p1;
@@ -117,35 +117,35 @@ int main()
           cout << "player created" << endl;
           p1->sprite.setPosition(8,300);
         }
-
+/*
         if ( p1->rect.getPosition().x > 750 )
         {
           p1->rect.setPosition(8,300);
           MMenu.showMainMenu = true;
         }
-
+*/
         if (collision(p1->rect.getPosition(),rock1->rect.getPosition()))
         {
-          p1->rect.setPosition(8,300);
+          p1->rect.setPosition(64,640);
           MMenu.showMainMenu = true;
           cout << " ouch 1" << endl;
         }
         if (collision(p1->rect.getPosition(),rock2->rect.getPosition()))
         {
-          p1->rect.setPosition(8,300);
+          p1->rect.setPosition(64,640);
           MMenu.showMainMenu = true;
           cout << " ouch 2" << endl;
         }
         if (collision(p1->rect.getPosition(),rock3->rect.getPosition()))
         {
-          p1->rect.setPosition(8,300);
+          p1->rect.setPosition(64,640);
           MMenu.showMainMenu = true;
           cout << " ouch 3" << endl;
         }
 
         window.clear();
 
-        //window.setView(view);
+        window.setView(view);
 
 
         // Updating entities

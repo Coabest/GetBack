@@ -10,7 +10,7 @@
 class fallingRock: public entity
 {
 public:
-  int baseMoveSpeed = 13;
+  int baseMoveSpeed = 11;
   int moveSpeed = baseMoveSpeed;
   int size;
   int fallingAnimationFrame;

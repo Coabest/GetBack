@@ -2,9 +2,9 @@
 
 fallingRock::fallingRock()
 {
-  size = 1 + rand()%5;
+  size = 2 + rand()%4;
   rect.setScale(size, size);
-  rect.setPosition( 100 + rand()%700, rand()%300 - 300);
+  rect.setPosition( 960 + rand()%420, 420 );
 
   texture.loadFromFile("rollingRock.png");
 
@@ -21,16 +21,16 @@ void fallingRock::update()
   sprite.setScale(rect.getScale());
 
   rect.move(0, moveSpeed);
-  rect.rotate(8);
-  if ( rect.getPosition().y > 550 )
+  rect.rotate(10);
+  if ( rect.getPosition().y > 800 )
   {
     moveSpeed += rand()%4 - 2;
     if (moveSpeed < moveSpeed - 5 || moveSpeed > moveSpeed + 10)
       moveSpeed = baseMoveSpeed;
 
-    size = 1 + rand()%5;
+    size = 2 + rand()%4;
     rect.setScale( size, size );
-    rect.setPosition( 50 + rand()%700, -1 /*rand()%300 - */);
+    rect.setPosition( 960 + rand()%420, 420 );
   }
 
 }
