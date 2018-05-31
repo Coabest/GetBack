@@ -1,3 +1,9 @@
+//Use this for compiling
+/*
+g++ -std=c++11 -c main.cpp mainMenu.cpp entity.cpp player.cpp fallingRock.cpp
+g++ main.o mainMenu.o entity.o player.o fallingRock.o -o sfml-app -lsfml-graphics -lsfml-window -lsfml-system
+*/
+
 #include <iostream>
 using namespace std;
 
@@ -99,10 +105,30 @@ int main()
         if ( MMenu.showMainMenu )
           view.reset(sf::FloatRect(0, 0, 800, 600));
         else
+        {
           view.reset( sf::FloatRect( p1->rect.getPosition().x - 200,
                                   p1->rect.getPosition().y - 150,
                                   400,
                                   300));
+          if( view.getCenter().x < 200)
+            view.setCenter(200, view.getCenter().y);
+          if( view.getCenter().x > 2560)
+            view.setCenter(2560, view.getCenter().y);
+          if( view.getCenter().y < 150)
+            view.setCenter(view.getCenter().x, 150);
+          if( view.getCenter().y > 1450)
+            view.setCenter(view.getCenter().x, 1450);
+        }
+
+        //CONTROL THE COLLISION TO MOVE THE PLAYER
+        //#include "collision.hpp"
+        //add collision.cpp to the makefile
+        /*
+        Collision::CreateTextureAndBitmask(sf::texture, "filename.png");
+        if ( Collision::PixelPerfectTest(sprite1, sprite2));
+        {
+          get to las position();
+        }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
         {
