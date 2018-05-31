@@ -1,9 +1,3 @@
-//Use this for compiling
-/*
-g++ -std=c++11 -c main.cpp mainMenu.cpp entity.cpp player.cpp fallingRock.cpp
-g++ main.o mainMenu.o entity.o player.o fallingRock.o -o sfml-app -lsfml-graphics -lsfml-window -lsfml-system
-*/
-
 #include <iostream>
 using namespace std;
 
