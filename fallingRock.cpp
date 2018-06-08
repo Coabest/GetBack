@@ -2,9 +2,8 @@
 
 fallingRock::fallingRock()
 {
-  size = 2 + rand()%4;
-  rect.setScale(size, size);
-  rect.setPosition( 960 + rand()%420, 420 );
+  rect.setScale(2, 2);
+  rect.setPosition( 944 + rand()%468, 420 );
 
   texture.loadFromFile("rollingRock.png");
 
@@ -19,18 +18,19 @@ void fallingRock::update()
   sprite.setPosition(rect.getPosition());
   sprite.setRotation(rect.getRotation());
   sprite.setScale(rect.getScale());
+  sprite.setOrigin(8, 8);
 
   rect.move(0, moveSpeed);
-  rect.rotate(10);
-  if ( rect.getPosition().y > 800 )
-  {
-    moveSpeed += rand()%4 - 2;
-    if (moveSpeed < moveSpeed - 5 || moveSpeed > moveSpeed + 10)
-      moveSpeed = baseMoveSpeed;
+  sprite.setTextureRect( sf::IntRect( 16*fallingAnimationFrame, 0, 16, 16));
+  
+  // Change the spriteframe every 10 gameframes
+  frameCounter++;
+  if (frameCounter > 9)
+    frameCounter = 0;
+  if(frameCounter%2 == 0)
+    fallingAnimationFrame++;
+  if (fallingAnimationFrame > 5)
+    fallingAnimationFrame = 0;
 
-    size = 2 + rand()%4;
-    rect.setScale( size, size );
-    rect.setPosition( 960 + rand()%420, 420 );
-  }
-
+  //rect.rotate(8);
 }

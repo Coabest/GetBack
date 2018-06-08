@@ -10,30 +10,30 @@ using namespace std;
 #include <SFML/Graphics.hpp>
 
 #include "mainMenu.hpp"
+//#include "cave.hpp"
+#include "gameOver.hpp"
+#include "firstFRArea.hpp"
+#include "secondFRArea.hpp"
 #include "fallingRock.hpp"
+#include "FBArea.hpp"
+#include "flyingBat.hpp"
 #include "player.hpp"
 #include "entity.hpp"
-
-
-bool collision(sf::Vector2f entity1, sf::Vector2f entity2)
-{
-  int diffX = entity1.x - entity2.x;
-  int diffY = entity1.y - entity2.y;
-  if ( (diffX>-16 && diffX<16) && (diffY>-16 && diffY<16))
-    return true;
-  return false;
-}
+#include "Collision.hpp"
 
 int main()
 {
+    int counter = 0;
+
     sf::RenderWindow window( sf::VideoMode(800,600), "Test Window");
     window.setPosition(sf::Vector2i(300,200));
     window.setFramerateLimit(30);
 
     sf::Event event;
 
-/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 // I HAVE TO DO THIS OR THE SPRITE WONT APPEAR ON MY VIRTUAL MAHCINE
+// NOT NECESARY IF YOU ARE NOT USING VIRTUAL MACHINE    
     player *p2 = new player;
     if ( !p2->texture.loadFromFile("player-walking-2.png"))
       cout << "ERROR LOADING PLAYER TEXTURE" << endl;
@@ -43,45 +43,78 @@ int main()
     window.clear();
     window.draw(p2->sprite);
     window.display();
-/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
-    sf::Texture tx;
-    tx.loadFromFile("map1.png");
-    sf::Sprite sp;
-    sp.setTexture(tx);
-    sp.setScale(2.f, 2.f);
+    // Outside world textures and sprites
+    sf::Texture worldBackgroundTexture;
+    worldBackgroundTexture.loadFromFile("worldBackground.png");
+    sf::Sprite WorldBackgorundSprite;
+    WorldBackgorundSprite.setTexture(worldBackgroundTexture);
+    WorldBackgorundSprite.setScale(2.f, 2.f);
+
+    sf::Texture worldWallsTexture;
+    Collision::CreateTextureAndBitmask(worldWallsTexture, "worldWalls.png");
+    sf::Sprite worldWallsSprite;
+    worldWallsSprite.setTexture(worldWallsTexture);
+    worldWallsSprite.setScale(2.f, 2.f);
+
+    sf::Texture caveTriggerTexture;
+    Collision::CreateTextureAndBitmask(caveTriggerTexture,"caveTrigger.png");
+    sf::Sprite caveTriggerSprite;
+    caveTriggerSprite.setTexture(caveTriggerTexture);
+    caveTriggerSprite.setScale(2.f, 2.f);
+
+    bool showWorld = true;
+
+    // Cave texture and sprites
+    sf::Texture caveBackgroundTexture;
+    Collision::CreateTextureAndBitmask(caveBackgroundTexture, "caveBackground.png");
+    sf::Sprite caveBackgroundSprite;
+    caveBackgroundSprite.setTexture(caveBackgroundTexture);
+    caveBackgroundSprite.setScale(2.f, 2.f);
+
+    sf::Texture caveWallsTexture;
+    Collision::CreateTextureAndBitmask(caveWallsTexture, "caveWalls.png");
+    sf::Sprite caveWallsSprite;
+    caveWallsSprite.setTexture(caveWallsTexture);
+    caveWallsSprite.setScale(2.f, 2.f);
+
+    sf::Texture caveHolesTexture;
+    Collision::CreateTextureAndBitmask(caveHolesTexture, "caveHoles.png");
+    sf::Sprite caveHolesSprite;
+    caveHolesSprite.setTexture(caveHolesTexture);
+    caveHolesSprite.setScale(2.f, 2.f);
+
+    sf::Texture worldTriggerTexture;
+    Collision::CreateTextureAndBitmask(worldTriggerTexture,"worldTrigger.png");
+    sf::Sprite worldTriggerSprite;
+    worldTriggerSprite.setTexture(worldTriggerTexture);
+    worldTriggerSprite.setScale(2.f, 2.f);
+
+    bool showCave = false;
 
     mainMenu MMenu;
+    //cave _cave;
+    gameOver GOver;
 
     // Player creation
     player *p1 = new player;
-    p1->rect.setPosition(64,640);
+
+    //Starting position of the player
+    p1->rect.setPosition(700,700);
     p1->rect.setScale(0.5, 0.5);
 
     // Main view
     sf::View view;
     view.setViewport(sf::FloatRect(0,0,1,1));
 
-    // Rock 1
-    fallingRock *rock1 = new fallingRock;
-    if ( !rock1->texture.loadFromFile("rollingRock.png"))
-      cout << "ERROR LOADING PLAYER TEXTURE" << endl;
-    rock1->sprite.setOrigin(8,8); //cambiar a "mitad de el sprite" con los limites locales
-    rock1->sprite.setTexture(rock1->texture);
+    // Falling Rocks areas
+    firstFRArea FRA1;
+    secondFRArea FRA2;
 
-    // Rock 2
-    fallingRock *rock2 = new fallingRock;
-    if ( !rock2->texture.loadFromFile("rollingRock.png"))
-      cout << "ERROR LOADING PLAYER TEXTURE" << endl;
-    rock2->sprite.setOrigin(8,8); //cambiar a "mitad de el sprite" con los limites locales
-    rock2->sprite.setTexture(rock2->texture);
-
-    // Rock 3
-    fallingRock *rock3 = new fallingRock;
-    if ( !rock3->texture.loadFromFile("rollingRock.png"))
-      cout << "ERROR LOADING PLAYER TEXTURE" << endl;
-    rock3->sprite.setOrigin(8,8); //cambiar a "mitad de el sprite" con los limites locales
-    rock3->sprite.setTexture(rock3->texture);
+    // Flying bats area
+    FBArea FBA;
 
     // Gameloop
     while (window.isOpen())
@@ -99,89 +132,305 @@ int main()
                 window.close();
               
               break;
+            case sf::Event::MouseButtonPressed:  
+              cout << sf::Mouse::getPosition().x << endl;
+              break;
+
           }
         }
+
+        // Refresh the window
+        window.clear();
+
         //TO CONTROL THE CAMERA ZOOM
         if ( MMenu.showMainMenu )
+        {
+          
           view.reset(sf::FloatRect(0, 0, 800, 600));
+
+          if (MMenu.newGame)
+          {
+            delete p1;
+            p1 = new player;
+            cout << "new game created" << endl;
+            p1->rect.setPosition(700,700);
+            p1->rect.setScale(0.5, 0.5);
+            MMenu.newGame = false;
+          }
+          MMenu.update();
+        }
         else
         {
-          view.reset( sf::FloatRect( p1->rect.getPosition().x - 200,
-                                  p1->rect.getPosition().y - 150,
-                                  400,
-                                  300));
-          if( view.getCenter().x < 200)
-            view.setCenter(200, view.getCenter().y);
-          if( view.getCenter().x > 2560)
-            view.setCenter(2560, view.getCenter().y);
-          if( view.getCenter().y < 150)
-            view.setCenter(view.getCenter().x, 150);
-          if( view.getCenter().y > 1450)
-            view.setCenter(view.getCenter().x, 1450);
-        }
+          // When something causes the player to die
+          if ( GOver.showGameOver )
+          {
+            GOver.rect.setOrigin( p1->rect.getPosition() );
+            GOver.text.setPosition( p1->rect.getPosition().x - 116,
+                                    p1->rect.getPosition().y - 120);
+            // When 'm' is pressed
+            if ( sf::Keyboard::isKeyPressed(sf::Keyboard::M) )
+            {
+              GOver.showGameOver = false;
+              GOver.mainMenu = false;
+              p1->gameOver = true;
+            }
+            // When 'c' is pressed
+            else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::C) )
+            {
+              GOver.showGameOver = false;
+              delete p1;
+              p1 = new player;
+              cout << "new game created" << endl;
+              p1->rect.setPosition(700,700);
+              p1->rect.setScale(0.5, 0.5);
+              GOver.continueGame = false;
+            }
+            GOver.update();
+            p1->canMoveUp = true;
+            p1->canMoveDown = true;
+            p1->canMoveRight = true;
+            p1->canMoveLeft = true;
+          }
+          // Whenever the player is alive
+          else
+          {
+            // Call Main menu when player dies and selects main menu option
+            if ( p1->gameOver )
+            {
+              MMenu.showMainMenu = true;
+            }
 
-        //CONTROL THE COLLISION TO MOVE THE PLAYER
-        //#include "collision.hpp"
-        //add collision.cpp to the makefile
-        /*
-        Collision::CreateTextureAndBitmask(sf::texture, "filename.png");
-        if ( Collision::PixelPerfectTest(sprite1, sprite2));
-        {
-          get to las position();
-        }
+            // Center the view on the player
+            view.reset( sf::FloatRect( p1->rect.getPosition().x - 200,
+                                    p1->rect.getPosition().y - 150,
+                                    400,
+                                    300));
+            // If player is near bounds of the map, stop camera movement
+            if( view.getCenter().x < 200)
+              view.setCenter(200, view.getCenter().y);
+            if( view.getCenter().x > 2470)
+              view.setCenter(2470, view.getCenter().y);
+            if( view.getCenter().y < 150)
+              view.setCenter(view.getCenter().x, 150);
+            if( view.getCenter().y > 1450)
+              view.setCenter(view.getCenter().x, 1450);
+            
+            // When player is outside in the forest
+            if ( showWorld )
+            {
+              GOver.rect.setScale( 40, 40 );
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-        {
-          delete p1;
-          p1 = new player;
-          cout << "player created" << endl;
-          p1->sprite.setPosition(8,300);
-        }
-/*
-        if ( p1->rect.getPosition().x > 750 )
-        {
-          p1->rect.setPosition(8,300);
-          MMenu.showMainMenu = true;
-        }
-*/
-        if (collision(p1->rect.getPosition(),rock1->rect.getPosition()))
-        {
-          p1->rect.setPosition(64,640);
-          MMenu.showMainMenu = true;
-          cout << " ouch 1" << endl;
-        }
-        if (collision(p1->rect.getPosition(),rock2->rect.getPosition()))
-        {
-          p1->rect.setPosition(64,640);
-          MMenu.showMainMenu = true;
-          cout << " ouch 2" << endl;
-        }
-        if (collision(p1->rect.getPosition(),rock3->rect.getPosition()))
-        {
-          p1->rect.setPosition(64,640);
-          MMenu.showMainMenu = true;
-          cout << " ouch 3" << endl;
-        }
+              // Check collision with obstacles(walls, trees, etc...)
+              if (Collision::PixelPerfectTest(p1->sprite, worldWallsSprite))
+              {
+                p1->moveSpeed = 0;
+                std::cout << "Collided" << std::endl;
+                if (p1->direction == 1) // Up
+                {
+                  p1->canMoveUp = false;
+                  p1->canMoveRight = false;
+                  p1->canMoveLeft = false;
+                  p1->rect.move(0,p1->baseMoveSpeed);
+                }
+                else if (p1->direction == 2) // Down
+                {
+                  p1->canMoveDown = false;
+                  p1->canMoveRight = false;
+                  p1->canMoveLeft = false;
+                  p1->rect.move(0,-p1->baseMoveSpeed);
+                }
+                else if (p1->direction == 3) // Right
+                {
+                  p1->canMoveUp = false;
+                  p1->canMoveDown = false;
+                  p1->canMoveRight = false;
+                  p1->rect.move(-p1->baseMoveSpeed,0);
+                }
+                else if (p1->direction == 4) // Left
+                {
+                  p1->canMoveUp = false;
+                  p1->canMoveDown = false;
+                  p1->canMoveLeft = false;
+                  p1->rect.move(p1->baseMoveSpeed,0);
+                }
+              }
+              else
+                p1->moveSpeed = p1->baseMoveSpeed;
 
-        window.clear();
+              // Check rock collitions for falling rocks in area 1
+              counter = 0;
+              for (FRA1.iter = FRA1.rockArray.begin(); FRA1.iter != FRA1.rockArray.end(); FRA1.iter++)
+              {
+                if (Collision::PixelPerfectTest(p1->sprite, FRA1.rockArray[counter].sprite))
+                {
+                  std::cout << "ouch" << counter << std::endl;
+                  GOver.showGameOver = true;
+                }
+                counter++;
+              }
+              // Check rock collitions for falling rocks in area 2
+              counter = 0;
+              for (FRA2.iter = FRA2.rockArray.begin(); FRA2.iter != FRA2.rockArray.end(); FRA2.iter++)
+              {
+                if (Collision::PixelPerfectTest(p1->sprite, FRA2.rockArray[counter].sprite))
+                {
+                  std::cout << "ouch" << counter << std::endl;
+                  GOver.showGameOver = true;
+                }
+                counter++;
+              }
+
+              // When the player is 1 rectangle inside the cave
+              if (Collision::PixelPerfectTest(p1->sprite, caveTriggerSprite))
+              {
+                showCave = true;
+                showWorld = false;
+              }
+
+            }
+            if ( showCave )
+            {
+              // Check collision with cave walls
+              if (Collision::PixelPerfectTest(p1->sprite, caveWallsSprite))
+              {
+                p1->moveSpeed = 0;
+                std::cout << "Collided" << std::endl;
+                if (p1->direction == 1) // Up
+                {
+                  p1->canMoveUp = false;
+                  p1->canMoveRight = false;
+                  p1->canMoveLeft = false;
+                  p1->rect.move(0,p1->baseMoveSpeed);
+                }
+                else if (p1->direction == 2) // Down
+                {
+                  p1->canMoveDown = false;
+                  p1->canMoveRight = false;
+                  p1->canMoveLeft = false;
+                  p1->rect.move(0,-p1->baseMoveSpeed*3);
+                }
+                else if (p1->direction == 3) // Right
+                {
+                  p1->canMoveUp = false;
+                  p1->canMoveDown = false;
+                  p1->canMoveRight = false;
+                  p1->rect.move(-p1->baseMoveSpeed,0);
+                }
+                else if (p1->direction == 4) // Left
+                {
+                  p1->canMoveUp = false;
+                  p1->canMoveDown = false;
+                  p1->canMoveLeft = false;
+                  p1->rect.move(p1->baseMoveSpeed,0);
+                }
+              }
+              else
+                p1->moveSpeed = p1->baseMoveSpeed;
+
+              // Check for collision with bats
+              counter = 0;
+              for (FBA.iter = FBA.batArray.begin(); FBA.iter != FBA.batArray.end(); FBA.iter++)
+              {
+                if (Collision::PixelPerfectTest(p1->sprite, FBA.batArray[counter].sprite))
+                {
+                  std::cout << "ouch" << counter << std::endl;
+                  p1->rect.move(0,1);
+                }
+                counter++;
+              }
+
+              if (Collision::PixelPerfectTest(p1->sprite, caveHolesSprite))
+              {
+                GOver.showGameOver = true;
+              }
+
+              // When the player is 1 rectangle outside the cave
+              if ( !Collision::PixelPerfectTest(p1->sprite, caveBackgroundSprite) ||
+                    Collision::PixelPerfectTest(p1->sprite, worldTriggerSprite) )
+              {
+                showWorld = true;
+                showCave = false;
+              }
+            }
+
+            // Update the player position according to keyboard inputs
+            p1->update();
+          }
+        }
 
         window.setView(view);
 
+        /////////////////////////
+        // DRAWING THE SPRITES //
+        /////////////////////////
+  
+        // Keeps the bats moving
+        FBA.update();
 
-        // Updating entities
-        p1->update();
+        // When player is inside the cave
+        if ( showCave )
+        {
+          std::cout << "in cave " << std::endl;
+          window.draw(caveBackgroundSprite);
+          window.draw(caveHolesSprite);
+          window.draw(caveWallsSprite);
+
+          // Draw bats
+          counter = 0;
+          for (FBA.iter = FBA.batArray.begin(); FBA.iter != FBA.batArray.end(); FBA.iter++)
+          {
+              FBA.batArray[counter].update();
+              window.draw(FBA.batArray[counter].sprite2);
+              window.draw(FBA.batArray[counter].sprite);
+              counter++;
+          }
+        }
+
+        // Keeps the rocks moving...
+        FRA1.update();
+        FRA2.update();
+
+        // When player is in the outside world
+        if ( showWorld )
+        {
+        //  std::cout << "in world " << std::endl;
+          // Draw the outside background
+          window.draw(WorldBackgorundSprite);
+          window.draw(worldWallsSprite);
+
+          // Draw and update falling rocks from first area
+          counter = 0;
+          for (FRA1.iter = FRA1.rockArray.begin(); FRA1.iter != FRA1.rockArray.end(); FRA1.iter++)
+          {
+              FRA1.rockArray[counter].update();
+              window.draw(FRA1.rockArray[counter].sprite);
+              counter++;
+          }
+
+          // Draw and update falling rocks from second area
+          counter = 0;
+          for (FRA2.iter = FRA2.rockArray.begin(); FRA2.iter != FRA2.rockArray.end(); FRA2.iter++)
+          {
+              FRA2.rockArray[counter].update();
+              window.draw(FRA2.rockArray[counter].sprite);
+              counter++;
+          }
+        }       
+
+        if ( !GOver.showGameOver )
+        {
+          window.draw(p1->sprite);
+          window.draw(p1->topSprite);
+        }
+
+        if ( GOver.showGameOver )
+        {
+          GOver.sprite.setColor(sf::Color(255,255,255,125));
+          window.draw(GOver.sprite);
+          window.draw(GOver.text);
+        }
         
-        rock1->update();
-        rock2->update();
-        rock3->update();
-        MMenu.update();
 
-        window.draw(sp);
-
-        window.draw(p1->sprite);
-        window.draw(rock1->sprite);
-        window.draw(rock2->sprite);
-        window.draw(rock3->sprite);
 
         if( MMenu.showMainMenu )
         {
